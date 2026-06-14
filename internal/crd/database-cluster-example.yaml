@@ -1,0 +1,37 @@
+# This is the ENTIRE user-facing interface to a Database Operator.
+# Compare this to the 47-step runbook in manual_operator.go.
+apiVersion: databases.madmmas.dev/v1alpha1
+kind: DatabaseCluster
+metadata:
+  name: production-postgres
+  namespace: data-platform
+spec:
+  replicas: 3
+  version: "15.4"
+  storage:
+    size: 100Gi
+    storageClass: fast-ssd
+  backup:
+    enabled: true
+    schedule: "0 2 * * *"
+    destination: s3://backups/production-postgres
+    retention: 30d
+  monitoring:
+    enabled: true
+    alertOnDegradedReplica: true
+status:
+  phase: Running
+  replicas:
+    ready: 3
+    total: 3
+  currentVersion: "15.4"
+  lastBackup: "2026-06-14T02:00:00Z"
+  conditions:
+    - type: Ready
+      status: "True"
+      lastTransitionTime: "2026-06-01T09:23:00Z"
+      reason: AllReplicasReady
+    - type: BackupHealthy
+      status: "True"
+      lastTransitionTime: "2026-06-14T02:05:00Z"
+      reason: LastBackupSucceeded
